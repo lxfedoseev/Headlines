@@ -32,8 +32,19 @@ import UIKit
 
 class SourceListController: UITableViewController {
   
+    private var token: NSKeyValueObservation?
+    
   override func viewDidLoad() {
     super.viewDidLoad()
+    
+    // 1
+    token = NewsAPI.service.observe(\.sources) { _, _ in
+        // 2
+        DispatchQueue.main.async {
+            // 3
+            self.tableView.reloadData()
+        }
+    }
     
     NewsAPI.service.fetchSources()
   }

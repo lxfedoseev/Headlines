@@ -30,10 +30,15 @@
 
 import Foundation
 
-class NewsAPI {
+class NewsAPI: NSObject {
   
   static let service = NewsAPI()
   
+    private struct Response: Codable {
+        let sources: [Source]?
+        let articles: [Article]?
+    }
+    
   private enum API {
     private static let basePath = "https://newsapi.org/v1"
     /*
@@ -64,20 +69,26 @@ class NewsAPI {
     }
   }
   
-  private(set) var sources: [Source] = []
-  private(set) var articles: [Article] = []
+  @objc dynamic private(set) var sources: [Source] = []
+  @objc dynamic private(set) var articles: [Article] = []
   
   func fetchSources() {
     API.sources.fetch { data in
-      if let json = String(data: data, encoding: .utf8) {
-        print(json)
-      }
+        if let sources = try! JSONDecoder().decode(
+            Response.self, from: data).sources {
+            self.sources = sources
+        }
     }
   }
   
   func fetchArticles(for source: Source) {
     API.articles(source).fetch { data in
-      
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        if let articles = try! decoder.decode(
+            Response.self, from: data).articles {
+            self.articles = articles
+        }
     }
   }
   
