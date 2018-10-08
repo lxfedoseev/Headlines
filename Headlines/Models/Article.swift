@@ -31,12 +31,12 @@
 import Foundation
 
 class Article: NSObject, Codable {
-  let author: String
+  let author: String?
   let title: String
-  let snippet: String
+  let snippet: String?
   let sourceURL: URL
-  let imageURL: URL
-  let published: Date
+  let imageURL: URL?
+  let published: Date?
     
     enum CodingKeys: String, CodingKey {
         case author
@@ -55,4 +55,28 @@ class Article: NSObject, Codable {
     self.imageURL = imageURL
     self.published = published
   }
+    
+    required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        title = try container.decode(String.self, forKey: .title)
+        sourceURL = try container.decode(URL.self, forKey: .sourceURL)
+        
+        
+        //imageURL = try container.decode(URL.self, forKey: .imageURL)
+        imageURL = try container.decodeIfPresent(URL.self,
+                                                 forKey: .imageURL)
+        
+        author = try container.decodeIfPresent(String.self,
+                                               forKey: .author)
+        published = try container.decodeIfPresent(Date.self,
+                                                  forKey: .published)
+        let rawSnippet = try container.decodeIfPresent(
+            String.self, forKey: .snippet)
+        if let mySnippet = rawSnippet {
+        snippet = mySnippet.deletingCharacters(
+            in: CharacterSet.newlines)
+        }else{
+            snippet = nil
+        }
+    }
 }

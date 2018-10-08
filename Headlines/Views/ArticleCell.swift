@@ -39,8 +39,15 @@ class ArticleCell: UITableViewCell {
   private var task: URLSessionDataTask?
   
   func render(article: Article, using formatter: DateFormatter) {
-    downloadBanner(from: article.imageURL)
-    publishedLabel.text = formatter.string(from: article.published)
+    if let imgUrl = article.imageURL{
+        downloadBanner(from: imgUrl)
+    }
+    
+    if let published = article.published {
+        publishedLabel.text = formatter.string(from: published)
+    } else {
+        publishedLabel.text = nil
+    }
     titleLabel.text = article.title
     snippetLabel.text = article.snippet
   }
